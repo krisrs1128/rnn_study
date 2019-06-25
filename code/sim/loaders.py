@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import pandas as pd
 import torch
@@ -11,7 +11,6 @@ class WarpedSinusoids(Dataset):
 
     Examples
     --------
-    >>> import matplotlib.pyplot as plt
     >>> x = WarpedSinusoids()
     >>> plt.scatter(np.arange(len(x[0][1])), x[0][1])
     """
@@ -24,11 +23,14 @@ class WarpedSinusoids(Dataset):
         if not values_path:
             values_path = "../../data/sinusoid/values.csv"
 
-        self.times = pd.read_csv(times_path).values
-        self.values = pd.read_csv(values_path).values
+        self.times = pd.read_csv(times_path).values.astype("float32")
+        self.times.resize((self.times.shape[0], self.times.shape[1], 1))
+
+        self.values = pd.read_csv(values_path).values.astype("float32")
+        self.values.resize((self.values.shape[0], self.values.shape[1], 1))
 
     def __getitem__(self, ix):
-        return self.times[ix], self.values[ix]
+        return self.times[ix, :, :], self.values[ix, :, :]
 
     def __len__(self):
         return self.times.shape[0]

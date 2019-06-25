@@ -91,15 +91,51 @@ Here's a tentative outline,
     \end{itemize}
   \end{itemize}
 \item Conflict: A new take on gating
+  \begin{itemize}
+  \item Old story: Long term memory, prevents gradients from exploding.
+  \item New kids on the block: It's all about invariance. Cool, cause it's like
+    relativity.
+  \item Who is right?? **dramatic music**
+  \end{itemize}
 \item Development: A look into simple gating
+  \begin{itemize}
+  \item Revisiting the sinusoid data. Look at the learned gatings.
+  \item Can even look at the learned gatings over time.
+  \item Can even assess the concordance between known warping functions and
+    learned gatings. This is one dramatic reveal.
+  \end{itemize}
 \item Conflict: Is any of this real?
+  \begin{itemize}
+  \item Either way, the previous analysis is inconclusive. Who actually knows
+    whether warping is relevant in the oh-so-many applications where RNNs are
+    the go-to analysis method?
+  \end{itemize}
 \item Development: Look into real-world gating
+  \begin{itemize}
+  \item K. would think we're silly for still looking into war and peace 10 years
+    later, but let's have a go at it.
+  \item What are gatings like for different sentences?
+  \item How do gatings differ across levels of abstraction?
+  \end{itemize}
 \item Conflict: What's the deal with all these architectures?
+  \begin{itemize}
+  \item It's nice that we learned something, but let's be real, no one does
+    anything like this in the real world (you of course use the new DeepMind
+    HydraRNN with Omniscient Attention Modules).
+  \item To what extent can we compare some of the different methods used in
+    practice, from the point of view of time warping?
+  \end{itemize}
 \item Development: An empirical comparison
+  \begin{itemize}
+  \item Let's just look at the time warping behavior of different architectures.
+  \item How rich are the function classes learned by different warpings? How
+    consistent are they with one another?
+  \end{itemize}
 \item Denoument
   \begin{itemize}
   \item What have we learned?
-  \item Can these be used as diagnostics?
+  \item Can these be used as diagnostics? Can these used to improve or unify
+    architectures?
   \item Can these be applied to other settings (Graphs, RL, ...)?
   \end{itemize}
 \end{itemize}

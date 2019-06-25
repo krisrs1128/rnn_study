@@ -3,9 +3,12 @@
 
 \begin{document}
 
+\section{Outcomes}
+\label{sec:outcomes}
+
  Here's a short summary of what tangible output this study might create. First,
  there are a few main themes,
-\begin{itemize*}
+\begin{itemize}
   \item Visual description of RNN functions. The operation from time $t$ to $t +
     1$ is just a function (albeit a high-dimensional one), but I almost never
     see people visualize this. To deal with dimensionality, we might need some
@@ -18,7 +21,7 @@
     suggest that a primary difference between different RNN architectures is how
     they warp time. Can we gather some data about how architectures relate, on
     this dimension?
-\end{itemize*}
+\end{itemize}
 
 In terms of tangible output, we will have
 
@@ -29,14 +32,14 @@ In terms of tangible output, we will have
     character modeling on war and peace). The visual summaries should be
     thought-through interactive visualizations, probably referring to the
     state-of-the-art in the visualization literature for high-dimensional
-    time-series modeling.
+    time-series visualization.
   \item A low-dimensional simulation experiment to make warping as obvious as it
     can ever be. The purpose is to provide a sanity check of the warping paper
     in a setting that no one can really debate. It doesn't answer the question
     of how relevant the analysis is to real-world sequence data, but it's an
     important initial check.
-  \item A secondary version of the low-dimensional experiment, repeated over a >
-    2 of common gating architectures. This element starts getting at point (3)
+  \item A secondary version of the low-dimensional experiment, repeated over $>
+    2$ of common gating architectures. This element starts getting at point (3)
     above, but in a setting that is still straightforwards.
   \item An interactive visualization of the low-dimensional simulation
     experiment. There are many series and many gating functions that we would
@@ -49,6 +52,56 @@ In terms of tangible output, we will have
     interactive display that gives access to the observed warping behaviors.
     Bonus points if you can find a way for users to input their own sentences,
     and see the gating behavior emerge in real-time.
+\end{itemize}
+
+I'm aiming for an interactive visualization venue, like Distill, MLVis, or
+Observables.
+
+\section{Outline}
+\label{sec:outline}
+
+Here's a tentative outline,
+
+\begin{itemize}
+\item Introduction
+  \begin{itemize}
+    \item I'd like to share some views of the time-warping behavior of RNNs.
+      There are already great visualizations that can help you understand RNNs
+      more generally, but I'd like to focus on visualizing RNNs and their
+      relation to invariance.
+  \end{itemize}
+\item The Cast
+  \begin{itemize}
+  \item Datasets
+    \begin{itemize}
+    \item Warped sinusoids. Exactly what it sounds like. Sinusoids with known
+      linear or quadratic time warping.
+    \item War and peace: The book, as in K's blog post / ICLR paper back in the
+      day.
+    \end{itemize}
+  \item Algorithms
+    \begin{itemize}
+    \item The basic RNN
+    \item LSTM and GRU variants
+    \item Some form of interactive visualization, probably on simple dataset,
+      using either PCA or linking, probably.
+    \item Can mention that an important, but invisible, part of the cast are the
+      visualization strategies. They're like the setting for the novel, not ever
+      directly addressed, but crucial to the narrative.
+    \end{itemize}
+  \end{itemize}
+\item Conflict: A new take on gating
+\item Development: A look into simple gating
+\item Conflict: Is any of this real?
+\item Development: Look into real-world gating
+\item Conflict: What's the deal with all these architectures?
+\item Development: An empirical comparison
+\item Denoument
+  \begin{itemize}
+  \item What have we learned?
+  \item Can these be used as diagnostics?
+  \item Can these be applied to other settings (Graphs, RL, ...)?
+  \end{itemize}
 \end{itemize}
 
 \end{document}

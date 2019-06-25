@@ -1,0 +1,54 @@
+\documentclass{article}
+\input{preamble}
+
+\begin{document}
+
+ Here's a short summary of what tangible output this study might create. First,
+ there are a few main themes,
+\begin{itemize*}
+  \item Visual description of RNN functions. The operation from time $t$ to $t +
+    1$ is just a function (albeit a high-dimensional one), but I almost never
+    see people visualize this. To deal with dimensionality, we might need some
+    reduction, selection of interesting features, or interactivity, but it
+    should be reasonably straightforwards.
+  \item Empirical exploration of gating behavior. The warping time paper is
+    beautiful, but I would like observe some of this warping behavior more
+    directly.
+  \item Equivalence classes of gating architectures. The authors of warping time
+    suggest that a primary difference between different RNN architectures is how
+    they warp time. Can we gather some data about how architectures relate, on
+    this dimension?
+\end{itemize*}
+
+In terms of tangible output, we will have
+
+\begin{itemize}
+  \item A text summary of the main ideas in the warping RNN.
+  \item Visual summaries of the mechanics of RNNs, in low-dimensional toy
+    examples, as well as a higher-dimensional real-world example (e.g.,
+    character modeling on war and peace). The visual summaries should be
+    thought-through interactive visualizations, probably referring to the
+    state-of-the-art in the visualization literature for high-dimensional
+    time-series modeling.
+  \item A low-dimensional simulation experiment to make warping as obvious as it
+    can ever be. The purpose is to provide a sanity check of the warping paper
+    in a setting that no one can really debate. It doesn't answer the question
+    of how relevant the analysis is to real-world sequence data, but it's an
+    important initial check.
+  \item A secondary version of the low-dimensional experiment, repeated over a >
+    2 of common gating architectures. This element starts getting at point (3)
+    above, but in a setting that is still straightforwards.
+  \item An interactive visualization of the low-dimensional simulation
+    experiment. There are many series and many gating functions that we would
+    like access, and we should think through the best way to navigate them.
+  \item An experiment extracting gating values on real data. I'm thinking
+    character modeling on War and Peace. Since the warping behavior is not known
+    apriori, we need to look the types of consistent patterns that emerge. So,
+    this has two types of tangible output: a static cluster / ordination plot
+    relating types of input sentences in terms of their warping behavior, and an
+    interactive display that gives access to the observed warping behaviors.
+    Bonus points if you can find a way for users to input their own sentences,
+    and see the gating behavior emerge in real-time.
+\end{itemize}
+
+\end{document}

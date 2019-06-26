@@ -11,13 +11,11 @@ def train(model, iterator, optimizer, loss_fun):
     epoch_loss = 0
     model.train()
 
-    for _, y in iterator:
+    for _, yminus, yplus in iterator:
         optimizer.zero_grad()
-        yplus = y[:, 1:, :].to(device)
-        yminus = y[:, :-1, :].to(device)
 
-        _, _, y_hat = model(yminus)
-        loss = loss_fun(y_hat.squeeze(1), yplus)
+        _, _, y_hat = model(yminus.to(device))
+        loss = loss_fun(y_hat.squeeze(1), yplus.to(device))
 
         loss.backward()
         optimizer.step()
@@ -40,7 +38,5 @@ for epoch in range(opts["train"]["n_epochs"]):
     print("\tTrain Loss: {}".format(train_loss))
 
 with torch.no_grad():
-    for _, y in iterator:
-        yminus = y[:, :-1, :]
-        h_final, h, y_hat = model(yminus)
-        pd.DataFrame(y_hat.squeeze().numpy()).to_csv("../../data/sinusoid/y_hat.csv", index=False)
+    h, h_n, y_hat = model(ws.values[:, :-1, :])
+    pd.DataFrame(y_hat.squeeze().numpy()).to_csv("../../data/sinusoid/y_hat.csv", index=False)

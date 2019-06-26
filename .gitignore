@@ -1,4 +1,5 @@
 *.aux
+*.csv
 *.log
 *.pdf
-*.csv
+*.pt

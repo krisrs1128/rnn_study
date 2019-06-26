@@ -28,3 +28,6 @@ for (i in seq_len(n_test)) {
 ## write these to file
 write.csv(t1, "../../data/sinusoid/times.csv", row.names = FALSE)
 write.csv(sin(4 * pi * t1), "../../data/sinusoid/values.csv", row.names = FALSE)
+
+y <- read.csv("../../data/sinusoid/values.csv")
+y_hat <- read.csv("../../data/sinusoid/y_hat.csv")

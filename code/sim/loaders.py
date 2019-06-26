@@ -24,10 +24,9 @@ class WarpedSinusoids(Dataset):
             values_path = "../../data/sinusoid/values.csv"
 
         self.times = pd.read_csv(times_path).values.astype("float32")
-        self.times.resize((self.times.shape[0], self.times.shape[1], 1))
-
+        self.times = torch.from_numpy(self.times).unsqueeze(2)
         self.values = pd.read_csv(values_path).values.astype("float32")
-        self.values.resize((self.values.shape[0], self.values.shape[1], 1))
+        self.values = torch.from_numpy(self.values).unsqueeze(2)
 
     def __getitem__(self, ix):
         return self.times[ix, :, :], self.values[ix, :, :]

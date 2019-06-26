@@ -28,5 +28,12 @@ for (i in seq_len(n)) {
 write.csv(t1, "../../data/sinusoid/times.csv", row.names = FALSE)
 write.csv(sin(4 * pi * t1), "../../data/sinusoid/values.csv", row.names = FALSE)
 
+## look at some of the predictions
 y <- read.csv("../../data/sinusoid/values.csv")
 y_hat <- read.csv("../../data/sinusoid/y_hat.csv")
+
+for (i in seq_len(100)) {
+    plot(as.numeric(y[i, 2:50]))
+    points(as.numeric(y_hat[i, ]), col = "red")
+    Sys.sleep(0.5)
+}

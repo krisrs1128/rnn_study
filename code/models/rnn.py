@@ -17,10 +17,10 @@ class SequenceModel(nn.Module):
     Examples
     --------
     >>> x = DataLoader(WarpedSinusoids())
-    >>> _, y = next(iter(x))
+    >>> _, yminus, yplus = next(iter(x))
     >>>
     >>> # to predict the next timepoint from the previous ones
-    >>> _, h, y_hat = SequenceModel()(y[:, :-1, :])
+    >>> h, h_n, y_hat = SequenceModel()(y[:, :-1, :])
     >>> plt.scatter(y[:, 1:, :].detach().numpy(), y_hat.detach().numpy())
     """
     def __init__(self, unit_type="GRU"):
@@ -43,6 +43,8 @@ class SequenceModel(nn.Module):
             self.featurizer = nn.LSTM(**params)
         self.regressor = nn.Linear(self.hidden_size, self.output_size)
 
+
     def forward(self, x):
-        h_final, h = self.featurizer(x)
-        return h_final, h, self.regressor(h_final)
+        h, h_n = self.featurizer(x.transpose(1, 0))
+        h, h_n = h.transpose(1, 0), h_n.transpose(1, 0)
+        return h, h_n, self.regressor(h)

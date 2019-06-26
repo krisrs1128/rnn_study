@@ -2,6 +2,10 @@
 """
 Training Sequence Models
 """
+from loaders import WarpedSinusoids
+from models.rnn import SequenceModel
+from torch.utils.data import DataLoader
+import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -24,19 +28,14 @@ def train(model, iterator, optimizer, loss_fun):
     return model, epoch_loss / len(iterator)
 
 
-opts = {
-    "train": {"n_epochs": 10, "lr": 1e-3}
-}
+if __name__ == '__main__':
+    opts = {"train": {"n_epochs": 50, "lr": 1e-3}}
+    model = SequenceModel()
+    optimizer = torch.optim.Adam(model.parameters(), lr=opts["train"]["lr"])
+    ws = WarpedSinusoids()
 
+    for epoch in range(opts["train"]["n_epochs"]):
+        model, train_loss = train(model, DataLoader(ws, batch_size=20), optimizer, nn.MSELoss())
+        print("\tTrain Loss: {}".format(train_loss))
 
-model = SequenceModel()
-optimizer = torch.optim.Adam(model.parameters(), lr=opts["train"]["lr"])
-ws = WarpedSinusoids()
-
-for epoch in range(opts["train"]["n_epochs"]):
-    model, train_loss = train(model, DataLoader(ws, batch_size=20), optimizer, nn.MSELoss())
-    print("\tTrain Loss: {}".format(train_loss))
-
-with torch.no_grad():
-    h, h_n, y_hat = model(ws.values[:, :-1, :])
-    pd.DataFrame(y_hat.squeeze().numpy()).to_csv("../../data/sinusoid/y_hat.csv", index=False)
+    torch.save(model, "sinusoid{}.pt".format(int(time.time())))

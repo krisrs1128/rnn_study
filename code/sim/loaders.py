@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+
 
 class WarpedSinusoids(Dataset):
     """
@@ -18,10 +19,10 @@ class WarpedSinusoids(Dataset):
         super(WarpedSinusoids).__init__()
 
         if not times_path:
-            times_path = "../../data/sinusoid/times.csv"
+            times_path = "../data/sinusoid/times.csv"
 
         if not values_path:
-            values_path = "../../data/sinusoid/values.csv"
+            values_path = "../data/sinusoid/values.csv"
 
         # read saved warped sinusoid data from file
         self.times = pd.read_csv(times_path).values.astype("float32")

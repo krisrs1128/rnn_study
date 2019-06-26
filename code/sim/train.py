@@ -27,17 +27,20 @@ def train(model, iterator, optimizer, loss_fun):
 
 
 opts = {
-    "train": {"n_epochs": 20, "lr": 1e-3}
+    "train": {"n_epochs": 10, "lr": 1e-3}
 }
 
 
 model = SequenceModel()
-optimizer = torch.optim.SGD(model.parameters(), lr=opts["train"]["lr"])
+optimizer = torch.optim.Adam(model.parameters(), lr=opts["train"]["lr"])
 ws = WarpedSinusoids()
 
 for epoch in range(opts["train"]["n_epochs"]):
-    model, train_loss = train(model, DataLoader(ws), optimizer, nn.MSELoss())
+    model, train_loss = train(model, DataLoader(ws, batch_size=20), optimizer, nn.MSELoss())
     print("\tTrain Loss: {}".format(train_loss))
 
-h_final, h, y_hat = model(ws.values[:, :-1, :])
-pd.DataFrame(y_hat.squeeze().detach().numpy()).to_csv("../../data/sinusoid/y_hat.csv", index=False)
+with torch.no_grad():
+    for _, y in iterator:
+        yminus = y[:, :-1, :]
+        h_final, h, y_hat = model(yminus)
+        pd.DataFrame(y_hat.squeeze().numpy()).to_csv("../../data/sinusoid/y_hat.csv", index=False)

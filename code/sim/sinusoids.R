@@ -6,18 +6,17 @@ library("ggplot2")
 library("dplyr")
 library("splines")
 
-n <- 100
+n <- 1000
 l <- 50
 
 t0 <- seq(0, 1, length.out = l)
 
 ## plot a few example random warpings
 p <- 3
-n_test <- 1000
-t1 <- matrix(nrow = n_test, ncol = l)
+t1 <- matrix(nrow = n, ncol = l)
 plot(t0, t0)
 ## plot(t0, sin(4 * pi * t0))
-for (i in seq_len(n_test)) {
+for (i in seq_len(n)) {
     dt1 <- abs(cbind(1, ns(t0, df = p - 1)) %*% rnorm(p))
     t1[i, ] <- cumsum(dt1)
     t1[i, ] <- t1[i, ] / max(t1[i, ])

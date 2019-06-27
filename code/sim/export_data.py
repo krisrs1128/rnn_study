@@ -56,7 +56,7 @@ def gru_cell(r_fun, z_fun, n_fun):
         r = r_fun(x, h)
         z = z_fun(x, h)
         n = n_fun(x, h, r)
-        h = (1 - z) * n + z * zero_k
+        h = (1 - z) * n + z * h
         return h, n, z, r
     return f
 
@@ -103,17 +103,30 @@ def cell_stack(params_list):
         funs = gru_funs(params_list[i])
         cell_funs.append(gru_cell(*funs))
 
-    def f(x, hprev):
+    def f(x, h_prev):
         h_in = x
         outputs = {}
         for i in range(len(cell_funs)):
             with torch.no_grad():
-                h, n, z, r = cell_funs[i](h_in, hprev)
-                outputs[i] = {"h": h, "n": n, "z": z, "r": r}
+                h, n, z, r = cell_funs[i](h_in, h_prev[i])
+                outputs["l{}".format(i)] = {"h": h, "n": n, "z": z, "r": r}
                 h_in = h
 
         return outputs
     return f
+
+
+def cell_seq(f_stack, x_seq, h_prev):
+    time_len = x_seq.shape[0]
+    outputs = {}
+
+    for i in range(time_len):
+        ix = "t{}".format(i)
+        outputs[ix] = f_stack(x_seq[i:(i + 1), :], h_prev)
+        K = len(outputs[ix])
+        h_prev = [outputs[ix]["l{}".format(k)]["h"] for k in range(K)]
+
+    return outputs
 
 
 # looking at one of the trained models
@@ -127,7 +140,7 @@ with torch.no_grad():
 
 # verify that these functions agree
 gru = model.featurizer
-h, hn = gru(torch.zeros((50, 1, 1)))
+h, hn = gru(torch.zeros((5, 1, 1)))
 h[0]
 
 # computations "by hand" agree
@@ -135,4 +148,5 @@ params = []
 params.append(layer_params(gru.weight_ih_l0, gru.weight_hh_l0, gru.bias_ih_l0, gru.bias_hh_l0))
 params.append(layer_params(gru.weight_ih_l1, gru.weight_hh_l1, gru.bias_ih_l1, gru.bias_hh_l1))
 stack_fun = cell_stack(params)
-stack_fun(torch.zeros((1, 1)), torch.zeros((10, 1)))
+h0 = [torch.zeros((10, 1)), torch.zeros((10, 1))]
+outputs = cell_seq(stack_fun, torch.zeros((5, 1)), h0)

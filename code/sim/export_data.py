@@ -117,6 +117,24 @@ def cell_stack(params_list):
 
 
 def cell_seq(f_stack, x_seq, h_prev):
+    """
+    Evaluate Units Across Sequence
+
+    This calls cell_stack along a sequence of inputs. It makes all the GRU
+    activation values (h, n, r, z) visible, at every layer, and every
+    timepoint.
+
+    :param: f_stack: A list of GRU cell functions, corresponding to the learned
+      cells at every layer for any particular timepoint.
+    :param x_seq: An input x sequence. Assumed to have dimension timepoint x feature_dim.
+    :param h_prev: A list giving the initial hidden unit values at every layer.
+      Should have the same length as f_stack.
+    :return A nested collection of dictionaries. The outer dictionary is
+      indexed by time (t0, t1, ...), the next inner one indexes layers (l0, the
+      lowest / closest to input, to lk, the highest), and the inner one gives
+      the different types of activations, z and r for gatings, and n and h for
+      (pre)updated hidden units.
+    """
     time_len = x_seq.shape[0]
     outputs = {}
 

@@ -134,6 +134,22 @@ def cell_seq(f_stack, x_seq, h_prev):
       lowest / closest to input, to lk, the highest), and the inner one gives
       the different types of activations, z and r for gatings, and n and h for
       (pre)updated hidden units.
+
+    Examples
+    --------
+    >>> # looking at one of the trained models
+    >>> model = torch.load("../../data/models/sinusoid1561562171.pt")
+    >>> gru = model.featurizer
+    >>> h, hn = gru(torch.zeros((5, 1, 1)))
+    >>>
+    >>> # computations "by hand" agree
+    >>> params = []
+    >>> params.append(layer_params(gru.weight_ih_l0, gru.weight_hh_l0, gru.bias_ih_l0, gru.bias_hh_l0))
+    >>> params.append(layer_params(gru.weight_ih_l1, gru.weight_hh_l1, gru.bias_ih_l1, gru.bias_hh_l1))
+    >>> stack_fun = cell_stack(params)
+    >>> h0 = [torch.zeros((10, 1)), torch.zeros((10, 1))]
+    >>> outputs = cell_seq(stack_fun, torch.zeros((5, 1)), h0)
+
     """
     time_len = x_seq.shape[0]
     outputs = {}
@@ -147,52 +163,30 @@ def cell_seq(f_stack, x_seq, h_prev):
     return outputs
 
 
-# looking at one of the trained models
-model = torch.load("../../data/models/sinusoid1561562171.pt")
+if __name__ == '__main__':
+    # load model and data
+    model = torch.load("../../data/models/sinusoid1561562171.pt")
+    ws = WarpedSinusoids("../../data/sinusoid/")
 
-# default extraction
-ws = WarpedSinusoids("../../data/sinusoid/")
-with torch.no_grad():
-    h, h_n, y_hat = model(ws.values[:, :-1, :])
-    pd.DataFrame(y_hat.squeeze().numpy()).to_csv("../../data/sinusoid/y_hat.csv", index=False)
+    with torch.no_grad():
+        for i in range(len(ws)):
+            # extract data, and prepare for writing
+            x = ws[i][1].unsqueeze(1)
+            outputs = cell_seq(stack_fun, x, h0)
 
-# verify that these functions agree
-gru = model.featurizer
-h, hn = gru(torch.zeros((5, 1, 1)))
-h[0]
+            ix = str(i).zfill(3)
+            outfile = open("activations_{}.csv".format(ix), "w")
 
-# computations "by hand" agree
-params = []
-params.append(layer_params(gru.weight_ih_l0, gru.weight_hh_l0, gru.bias_ih_l0, gru.bias_hh_l0))
-params.append(layer_params(gru.weight_ih_l1, gru.weight_hh_l1, gru.bias_ih_l1, gru.bias_hh_l1))
-stack_fun = cell_stack(params)
-h0 = [torch.zeros((10, 1)), torch.zeros((10, 1))]
-outputs = cell_seq(stack_fun, torch.zeros((5, 1)), h0)
+            # write activations one line at a time
+            for time, stack in outputs.items():
+                for layer, cells in stack.items():
+                    for parameter, value in cells.items():
+                        for k, v in enumerate(value.squeeze()):
+                            outfile.writelines("{}\t{}\t{}\t{}\t{}\n".format(time, layer, parameter, k, v))
 
-# Now, let's write out gatings for all the sinusoid functions
-ws = WarpedSinusoids("../../data/sinusoid/")
+            outfile.close()
+            print(i / len(ws))
 
-with torch.no_grad():
-    for i in range(len(ws)):
-        ix = str(i).zfill(3)
-        outfile = open("activations_{}.csv".format(ix), "w")
-        x = ws[i][1].unsqueeze(1)
-        outputs = cell_seq(stack_fun, x, h0)
-
-        for time, stack in outputs.items():
-            for layer, cells in stack.items():
-                for parameter, value in cells.items():
-                    for k, v in enumerate(value.squeeze()):
-                        outfile.writelines("{}\t{}\t{}\t{}\t{}\n".format(time, layer, parameter, k, v))
-
-        outfile.close()
-        print(i)
-
-        _, _, y_hat = model(x.transpose(1, 0))
-        pd.DataFrame(y_hat.squeeze().numpy()).to_csv("y_hat_{}.csv".format(ix))
-
-    # _, T, K = h.shape
-    # for t in range(T):
-    #     for k in range(K):
-    #         h_file.writelines("{}\t{}\t{}\n".format(t, k, h[0][t][k]))
-    #     print(t)
+            # also write the predictions
+            _, _, y_hat = model(x.transpose(1, 0))
+            pd.DataFrame(y_hat.squeeze().numpy()).to_csv("y_hat_{}.csv".format(ix))

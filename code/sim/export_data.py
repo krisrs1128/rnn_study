@@ -50,7 +50,7 @@ def gru_funs(params):
 
 def gru_cell(r_fun, z_fun, n_fun):
     """
-    Factory of GRU Cell Functions
+    Factory of GRU Cells
     """
     def f(x, h):
         r = r_fun(x, h)
@@ -62,6 +62,9 @@ def gru_cell(r_fun, z_fun, n_fun):
 
 
 def layer_params(weights_ih, weights_hh, bias_ih, bias_hh):
+    """
+    More Readable GRU Parameters
+    """
     K = weights_ih.shape[0]
     rix = range(0, K // 3)
     zix = range(K // 3, 2 * K // 3)

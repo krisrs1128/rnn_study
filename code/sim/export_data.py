@@ -3,8 +3,8 @@
 Write Data for Analysis
 """
 from loaders import WarpedSinusoids
+import pandas as pd
 import torch
-
 
 def sigm_factory(W1, W2, bx, bh):
     """
@@ -164,29 +164,36 @@ def cell_seq(f_stack, x_seq, h_prev):
 
 
 if __name__ == '__main__':
-    # load model and data
-    model = torch.load("../../data/models/sinusoid1561562171.pt")
-    ws = WarpedSinusoids("../../data/sinusoid/")
+    # load data and model
+    ws = WarpedSinusoids("../data/sinusoid/")
+    model = torch.load("../data/models/sinusoid1561562171.pt")
 
-    with torch.no_grad():
-        for i in range(len(ws)):
-            # extract data, and prepare for writing
-            x = ws[i][1].unsqueeze(1)
-            outputs = cell_seq(stack_fun, x, h0)
+    # get parameters that define the GRU cells
+    gru = model.featurizer
+    params = []
+    params.append(layer_params(gru.weight_ih_l0, gru.weight_hh_l0, gru.bias_ih_l0, gru.bias_hh_l0))
+    params.append(layer_params(gru.weight_ih_l1, gru.weight_hh_l1, gru.bias_ih_l1, gru.bias_hh_l1))
+    stack_fun = cell_stack(params)
+    K = params[0]["r"]["Wi"].shape[0]
+    h0 = [torch.zeros((10, 1)), torch.zeros((10, 1))]
 
-            ix = str(i).zfill(3)
-            outfile = open("activations_{}.csv".format(ix), "w")
+    # extract and write activations, one sample at a time
+    for i in range(len(ws)):
+        x = ws[i][1].unsqueeze(1)
+        outputs = cell_seq(stack_fun, x, h0)
 
-            # write activations one line at a time
-            for time, stack in outputs.items():
-                for layer, cells in stack.items():
-                    for parameter, value in cells.items():
-                        for k, v in enumerate(value.squeeze()):
-                            outfile.writelines("{}\t{}\t{}\t{}\t{}\n".format(time, layer, parameter, k, v))
+        ix = str(i).zfill(3)
+        outfile = open("activations_{}.csv".format(ix), "w")
 
-            outfile.close()
-            print(i / len(ws))
+        for time, stack in outputs.items():
+            for layer, cells in stack.items():
+                for parameter, value in cells.items():
+                    for k, v in enumerate(value.squeeze()):
+                        outfile.writelines("{}\t{}\t{}\t{}\t{}\n".format(time, layer, parameter, k, v))
 
-            # also write the predictions
-            _, _, y_hat = model(x.transpose(1, 0))
-            pd.DataFrame(y_hat.squeeze().numpy()).to_csv("y_hat_{}.csv".format(ix))
+        outfile.close()
+        print("{}/{}".format(i, len(ws)))
+
+        # also write the predictions
+        _, _, y_hat = model(x.transpose(1, 0))
+        pd.DataFrame(y_hat.squeeze().detach().numpy()).to_csv("y_hat_{}.csv".format(ix))

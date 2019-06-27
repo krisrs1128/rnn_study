@@ -4,3 +4,4 @@
 *.pdf
 *.pt
 __pycache__
+data/

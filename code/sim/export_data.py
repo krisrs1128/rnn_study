@@ -21,6 +21,13 @@ def sigm_factory(W1, W2, bx, bh):
 
 
 def n_factory(W1, W2, bx, bh):
+    """
+    Generate n(x, h, r) function
+
+    Computation for pre-gated h is different,
+      - Uses tanh
+      - Requires gating from r
+    """
     bx = bx.unsqueeze(1)
     bh = bh.unsqueeze(1)
 
@@ -32,6 +39,9 @@ def n_factory(W1, W2, bx, bh):
 
 
 def gru_funs(params):
+    """
+    GRU functions from Torch Parameters
+    """
     r_fun = sigm_factory(params["r"]["Wi"], params["r"]["Wh"], params["r"]["bi"], params["r"]["bh"])
     z_fun = sigm_factory(params["z"]["Wi"], params["z"]["Wh"], params["z"]["bi"], params["z"]["bh"])
     n_fun = n_factory(params["n"]["Wi"], params["n"]["Wh"], params["n"]["bi"], params["n"]["bh"])
@@ -39,6 +49,9 @@ def gru_funs(params):
 
 
 def gru_cell(r_fun, z_fun, n_fun):
+    """
+    Factory of GRU Cell Functions
+    """
     def f(x, h):
         r = r_fun(x, h)
         z = z_fun(x, h)
@@ -49,9 +62,10 @@ def gru_cell(r_fun, z_fun, n_fun):
 
 
 def layer_params(weights_ih, weights_hh, bias_ih, bias_hh):
-    rix = range(0, 10) # I know, it's hard coded...
-    zix = range(10, 20)
-    nix = range(20, 30)
+    K = weights_ih.shape[0]
+    rix = range(0, K // 3)
+    zix = range(K // 3, 2 * K // 3)
+    nix = range(2 * K // 3, K)
     params = {
         "r" :{
             "Wi": weights_ih[rix, :],

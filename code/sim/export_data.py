@@ -63,7 +63,7 @@ def gru_cell(r_fun, z_fun, n_fun):
 
 def layer_params(weights_ih, weights_hh, bias_ih, bias_hh):
     """
-    More Readable GRU Parameters
+    Rearrange Weight Output from Torch
     """
     K = weights_ih.shape[0]
     rix = range(0, K // 3)
@@ -92,6 +92,30 @@ def layer_params(weights_ih, weights_hh, bias_ih, bias_hh):
     return params
 
 
+def cell_stack(params_list):
+    """
+    Inspect Stack of GRU Cells
+
+    Extracts values of h, n, z, and r, for all layers at a single timepoint.
+    """
+    cell_funs = []
+    for i in range(len(params_list)):
+        funs = gru_funs(params_list[i])
+        cell_funs.append(gru_cell(*funs))
+
+    def f(x, hprev):
+        h_in = x
+        outputs = {}
+        for i in range(len(cell_funs)):
+            with torch.no_grad():
+                h, n, z, r = cell_funs[i](h_in, hprev)
+                outputs[i] = {"h": h, "n": n, "z": z, "r": r}
+                h_in = h
+
+        return outputs
+    return f
+
+
 # looking at one of the trained models
 model = torch.load("../../data/models/sinusoid1561562171.pt")
 
@@ -107,9 +131,8 @@ h, hn = gru(torch.zeros((50, 1, 1)))
 h[0]
 
 # computations "by hand" agree
-params = layer_params(gru.weight_ih_l0, gru.weight_hh_l0, gru.bias_ih_l0, gru.bias_hh_l0)
-f0 = gru_cell(*gru_funs(params))
-h01, n01, z01, r01 = f0(torch.zeros((1, 1)), torch.zeros((10, 1)))
-params = layer_params(gru.weight_ih_l1, gru.weight_hh_l1, gru.bias_ih_l1, gru.bias_hh_l1)
-f1 = gru_cell(*(gru_funs(params)))
-h11, n11, z11, r11 = f1(h01, torch.zeros((10, 1)))
+params = []
+params.append(layer_params(gru.weight_ih_l0, gru.weight_hh_l0, gru.bias_ih_l0, gru.bias_hh_l0))
+params.append(layer_params(gru.weight_ih_l1, gru.weight_hh_l1, gru.bias_ih_l1, gru.bias_hh_l1))
+stack_fun = cell_stack(params)
+stack_fun(torch.zeros((1, 1)), torch.zeros((10, 1)))

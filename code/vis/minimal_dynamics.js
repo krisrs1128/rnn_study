@@ -37,15 +37,20 @@ var scales = {
 };
 
 // Simulate some data, just for testing
-var times = d3.range(0, 1, 0.05);
+var times = d3.range(0, 1, 0.01);
 var N = times.length;
 
-var dynamics = [];
-for (var i = 0; i < N; i++) {
+var dynamics = [{"time": 0, "x": 0, "h": 0, "h_next": 0}];
+for (var i = 1; i < N; i++) {
+    var cur_x = Math.sin(2 * Math.PI * times[i]),
+        h = f_rnn(cur_x, dynamics[i - 1]["h"]),
+        h_next = f_rnn(cur_x, h); // at this x, h, where would dynamics want you to go?
+
     dynamics.push({
         "time": times[i],
-        "x": Math.sin(2 * Math.PI * times[i]),
-        "h": times[i] ** 2
+        "x": cur_x,
+        "h": h,
+        "h_next": h_next
     });
 }
 
@@ -57,36 +62,29 @@ var x_points = svg_elem.select("#x_fun")
     .attrs({
         "cx": (d) => scales.x_fun.time(d.time),
         "cy": (d) => scales.x_fun.value(d.x),
-        "r": 3
+        "r": 1
     });
-
-var time_pairs = [];
-for (var i = 0; i < N - 1; i++) {
-    time_pairs.push({
-        "cur": dynamics[i],
-        "next": dynamics[i + 1]
-    });
-}
 
 var xh_segs = svg_elem.select("#hx_scatter")
     .selectAll("line")
-    .data(time_pairs).enter()
+    .data(dynamics).enter()
     .append("line")
     .attrs({
-        "x1": (d) => scales.hx.h(d["cur"]["h"]),
-        "x2": (d) => scales.hx.h(d["next"]["h"]),
-        "y1": (d) => scales.hx.x(d["cur"]["x"]),
-        "y2": (d) => scales.hx.x(d["cur"]["x"]),
+        "x1": (d) => scales.hx.h(d["h"]),
+        "x2": (d) => scales.hx.h(d["h_next"]),
+        "y1": (d) => scales.hx.x(d["x"]),
+        "y2": (d) => scales.hx.x(d["x"]),
         "stroke": "#000",
-        "stroke-width": 2
+        "stroke-width": 2,
+        "stroke-opacity": 0.2
     });
 
 var xh_starts = svg_elem.select("#hx_scatter")
     .selectAll("circle")
-    .data(time_pairs).enter()
+    .data(dynamics).enter()
     .append("circle")
     .attrs({
-        "cx": (d) => scales.hx.h(d["cur"]["h"]),
-        "cy": (d) => scales.hx.x(d["cur"]["x"]),
+        "cx": (d) => scales.hx.h(d["h"]),
+        "cy": (d) => scales.hx.x(d["x"]),
         "r": 2
     });

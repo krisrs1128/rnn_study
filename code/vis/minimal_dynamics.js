@@ -28,48 +28,37 @@ var scales = {
     },
     "hx": {
         "h": d3.scaleLinear()
-            .range([300, 0]),
+            .domain([-1, 1])
+            .range([0, 300]),
         "x": d3.scaleLinear()
             .domain([-1, 1])
-            .range([300, 0])
+            .range([200, 0])
     }
 };
 
 // Simulate some data, just for testing
 var times = d3.range(0, 1, 0.05);
 var N = times.length;
-var x = [];
-for (var i = 0; i < N; i++) {
-    x.push({
-        "time": times[i],
-        "value": Math.sin(2 * Math.PI * times[i])
-    });
-}
-
-var h = [];
-for (var i = 0; i < N; i++) {
-    h.push({"value": d3.randomUniform()()});
-}
-
-// Display these data
-var x_points = svg_elem.select("#x_fun")
-    .selectAll("circles")
-    .data(x).enter()
-    .append("circle")
-    .attrs({
-        "cx": (d) => scales.x_fun.time(d.time),
-        "cy": (d) => scales.x_fun.value(d.value),
-        "r": 3
-    });
 
 var dynamics = [];
 for (var i = 0; i < N; i++) {
     dynamics.push({
         "time": times[i],
-        "x": x[i],
-        "h": h[i]
+        "x": Math.sin(2 * Math.PI * times[i]),
+        "h": times[i] ** 2
     });
 }
+
+// Display these data
+var x_points = svg_elem.select("#x_fun")
+    .selectAll("circles")
+    .data(dynamics).enter()
+    .append("circle")
+    .attrs({
+        "cx": (d) => scales.x_fun.time(d.time),
+        "cy": (d) => scales.x_fun.value(d.x),
+        "r": 3
+    });
 
 var time_pairs = [];
 for (var i = 0; i < N - 1; i++) {
@@ -81,12 +70,23 @@ for (var i = 0; i < N - 1; i++) {
 
 var xh_segs = svg_elem.select("#hx_scatter")
     .selectAll("line")
-    .data(time_pairs)
+    .data(time_pairs).enter()
+    .append("line")
     .attrs({
-        "x1": (d) => scales.hx.x(d["cur"]["x"]),
-        "x2": (d) => scales.hx.x(d["cur"]["x"]),
-        "y1": (d) => scales.hx.h(d["cur"]["h"]),
-        "y2": (d) => scales.hx.h(d["next"]["h"]),
-        "stroke": "#000"
+        "x1": (d) => scales.hx.h(d["cur"]["h"]),
+        "x2": (d) => scales.hx.h(d["next"]["h"]),
+        "y1": (d) => scales.hx.x(d["cur"]["x"]),
+        "y2": (d) => scales.hx.x(d["cur"]["x"]),
+        "stroke": "#000",
+        "stroke-width": 2
     });
 
+var xh_starts = svg_elem.select("#hx_scatter")
+    .selectAll("circle")
+    .data(time_pairs).enter()
+    .append("circle")
+    .attrs({
+        "cx": (d) => scales.hx.h(d["cur"]["h"]),
+        "cy": (d) => scales.hx.x(d["cur"]["x"]),
+        "r": 2
+    });

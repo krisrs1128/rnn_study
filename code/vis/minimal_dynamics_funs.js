@@ -42,17 +42,26 @@ function draw_x_fun(elem, dynamics, scale) {
         });
 }
 
+function draw_xh_scatter(elem, dynamics, scale) {
+    var xh_segs = elem.selectAll("line")
+        .data(dynamics).enter()
+        .append("line")
+        .attrs({
+            "x1": (d) => scale.h(d["h"]),
+            "x2": (d) => scale.h(d["h_next"]),
+            "y1": (d) => scale.x(d["x"]),
+            "y2": (d) => scale.x(d["x"]),
+            "stroke": "#000",
+            "stroke-width": 2,
+            "stroke-opacity": 0.2
+        });
 
-
-
-// function append_circles(elem, data, scale) {
-//     var x_points = svg_elem.select("#x_fun")
-//         .selectAll("circles")
-//         .data(dynamics).enter()
-//         .append("circle")
-//         .attrs({
-//             "cx": (d) => scales.x_fun.time(d.time),
-//             "cy": (d) => scales.x_fun.value(d.x),
-//             "r": 1
-//         });
-// }
+    var xh_starts = elem.selectAll("circle")
+        .data(dynamics).enter()
+        .append("circle")
+        .attrs({
+            "cx": (d) => scale.h(d["h"]),
+            "cy": (d) => scale.x(d["x"]),
+            "r": 2
+        });
+}

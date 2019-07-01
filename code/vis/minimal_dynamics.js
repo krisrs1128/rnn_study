@@ -13,6 +13,11 @@ var svg_elem = d3.select("body")
     .attrs({"width": width,
            "height": height});
 
+svg_elem.selectAll("g")
+    .data(["x_fun", "hx_scatter"]).enter()
+    .append("g")
+    .attr("id", (d) => d);
+
 var scales = {
     "x_fun": {
         "time": d3.scaleLinear()
@@ -20,20 +25,35 @@ var scales = {
         "value": d3.scaleLinear()
             .domain([-1, 1])
             .range([100, 0])
+    },
+    "hx": {
+        "h": d3.scaleLinear()
+            .range([300, 0]),
+        "x": d3.scaleLinear()
+            .domain([-1, 1])
+            .range([300, 0])
     }
 };
 
-// Define function values
+// Simulate some data, just for testing
 var times = d3.range(0, 1, 0.05);
+var N = times.length;
 var x = [];
-for (var i = 0; i < times.length; i++) {
+for (var i = 0; i < N; i++) {
     x.push({
         "time": times[i],
         "value": Math.sin(2 * Math.PI * times[i])
     });
 }
 
-var x_points = svg_elem.selectAll("circles")
+var h = [];
+for (var i = 0; i < N; i++) {
+    h.push({"value": d3.randomUniform()()});
+}
+
+// Display these data
+var x_points = svg_elem.select("#x_fun")
+    .selectAll("circles")
     .data(x).enter()
     .append("circle")
     .attrs({
@@ -41,3 +61,32 @@ var x_points = svg_elem.selectAll("circles")
         "cy": (d) => scales.x_fun.value(d.value),
         "r": 3
     });
+
+var dynamics = [];
+for (var i = 0; i < N; i++) {
+    dynamics.push({
+        "time": times[i],
+        "x": x[i],
+        "h": h[i]
+    });
+}
+
+var time_pairs = [];
+for (var i = 0; i < N - 1; i++) {
+    time_pairs.push({
+        "cur": dynamics[i],
+        "next": dynamics[i + 1]
+    });
+}
+
+var xh_segs = svg_elem.select("#hx_scatter")
+    .selectAll("line")
+    .data(time_pairs)
+    .attrs({
+        "x1": (d) => scales.hx.x(d["cur"]["x"]),
+        "x2": (d) => scales.hx.x(d["cur"]["x"]),
+        "y1": (d) => scales.hx.h(d["cur"]["h"]),
+        "y2": (d) => scales.hx.h(d["next"]["h"]),
+        "stroke": "#000"
+    });
+

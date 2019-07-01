@@ -14,7 +14,7 @@ var svg_elem = d3.select("body")
            "height": height});
 
 svg_elem.selectAll("g")
-    .data(["x_fun", "hx_scatter"]).enter()
+    .data(["x_fun", "x_star_fun", "hx_scatter"]).enter()
     .append("g")
     .attr("id", (d) => d);
 
@@ -40,30 +40,20 @@ var scales = {
 var times = d3.range(0, 1, 0.01);
 var N = times.length;
 
-var dynamics = [{"time": 0, "x": 0, "h": 0, "h_next": 0}];
-for (var i = 1; i < N; i++) {
-    var cur_x = Math.sin(2 * Math.PI * times[i]),
-        h = f_rnn(cur_x, dynamics[i - 1]["h"]),
-        h_next = f_rnn(cur_x, h); // at this x, h, where would dynamics want you to go?
+var d0 = {"time": 0, "x": 0, "h": 0, "h_next": 0},
+    x = (t) => Math.sin(2 * Math.PI * t),
+    f_rnn = rnn_factory(-1, 1, 0),
+    c_warp = warping_factory(2);
 
-    dynamics.push({
-        "time": times[i],
-        "x": cur_x,
-        "h": h,
-        "h_next": h_next
-    });
+var dynamics = evaluate_dynamics(times, d0, x, f_rnn);
+var warped_dynamics = evaluate_dynamics(c_warp(times), d0, x, f_rnn);
+for (var i = 0; i < N; i++) {
+    warped_dynamics[i]["time"] = times[i];
 }
 
 // Display these data
-var x_points = svg_elem.select("#x_fun")
-    .selectAll("circles")
-    .data(dynamics).enter()
-    .append("circle")
-    .attrs({
-        "cx": (d) => scales.x_fun.time(d.time),
-        "cy": (d) => scales.x_fun.value(d.x),
-        "r": 1
-    });
+draw_x_fun(svg_elem.select("#x_fun"), dynamics, scales.x_fun);
+draw_x_fun(svg_elem.select("#x_star_fun"), warped_dynamics, scales.x_fun);
 
 var xh_segs = svg_elem.select("#hx_scatter")
     .selectAll("line")

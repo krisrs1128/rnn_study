@@ -24,24 +24,12 @@ for (i in seq_len(n)) {
     ## points(t0, sin(4 * pi * t1[i, ]), col = colors()[sample(655, 1)])
 }
 
-## write these to file
-write.csv(t1, "../../data/sinusoid/times.csv", row.names = FALSE)
-write.csv(sin(4 * pi * t1), "../../data/sinusoid/values.csv", row.names = FALSE)
-
-## look at some of the predictions
-y <- read.csv("../../data/sinusoid/values.csv")
-## y_hat <- read.csv("../../data/sinusoid/y_hat.csv")
-
-## for (i in seq_len(100)) {
-##     plot(as.numeric(y[i, 2:50]))
-##     points(as.numeric(y_hat[i, ]), col = "red")
-##     Sys.sleep(0.5)
-## }
-
-## plot(t0, sin(runif(1, .1, 6) * pi * t1[2, ]), col = colors()[sample(655, 1)])
-
+z <- matrix(0, nrow = nrow(t1), ncol = ncol(t1))
 for (i in seq_len(nrow(t1))) {
-    t1[i, ] <- t1[i, ] * runif(1.5, .1, 6) * pi
+    t1[i, ] <- t1[i, ] * runif(1, .1, 10) * pi
+    z[i, ] <- runif(1, 2, 5) * sin(t1[i, ]) + runif(1, -1, 1)
 }
 
-z <- sin(t1)
+
+write.csv(t1, "../../data/sinusoid/times.csv", row.names = FALSE)
+write.csv(z, "../../data/sinusoid/values.csv", row.names = FALSE)

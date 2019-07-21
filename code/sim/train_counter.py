@@ -29,7 +29,7 @@ def train(model, iterator, optimizer, loss_fun):
 
 
 if __name__ == '__main__':
-    opts = {"train": {"n_epochs": 50, "lr": 1e-3}}
+    opts = {"train": {"n_epochs": 3, "lr": 1e-3}}
     model = CounterModel()
     optimizer = torch.optim.Adam(model.parameters(), lr=opts["train"]["lr"])
     cd = CounterData()

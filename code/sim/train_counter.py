@@ -32,7 +32,7 @@ if __name__ == '__main__':
     opts = {"train": {"n_epochs": 3, "lr": 1e-3}}
     model = CounterModel()
     optimizer = torch.optim.Adam(model.parameters(), lr=opts["train"]["lr"])
-    cd = CounterData()
+    cd = CounterData("/data/")
 
     for epoch in range(opts["train"]["n_epochs"]):
         model, train_loss = train(model, DataLoader(cd, batch_size=20), optimizer, nn.CrossEntropyLoss())

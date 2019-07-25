@@ -5,7 +5,7 @@
 #################
 #a file for job output, you can check job progress
 #SBATCH --account=rpp-bengioy
-#SBATCH --output=runn_study.out
+#SBATCH --output=rnn_study.out
 #SBATCH --qos=high
 #################
 # a file for errors from the job
@@ -16,8 +16,8 @@
 #SBATCH --time=00:30:00
 #################
 #memory per node; default is 4000 MB per CPU
-#SBATCH --mem=16G
 #SBATCH --gres=gpu:1
+#SBATCH --mem=16G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=sankaran.kris@gmail.com
 

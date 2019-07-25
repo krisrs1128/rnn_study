@@ -1,2 +1,2 @@
 cd /home/code/
-python3 train_counter.py
+python3 sim/train_counter.py

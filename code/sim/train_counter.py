@@ -13,12 +13,13 @@ import torch.nn.functional as F
 def train(model, iterator, optimizer, loss_fun):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     epoch_loss = 0
+    model = model.to(device)
     model.train()
 
-    for _, y, count in iterator:
+    for _, x, count in iterator:
         optimizer.zero_grad()
 
-        _, _, y_hat = model(y.to(device))
+        _, _, y_hat = model(x.to(device))
         loss = loss_fun(y_hat.squeeze(), count.to(device))
 
         loss.backward()
@@ -29,7 +30,7 @@ def train(model, iterator, optimizer, loss_fun):
 
 
 if __name__ == '__main__':
-    opts = {"train": {"n_epochs": 3, "lr": 1e-3}}
+    opts = {"train": {"n_epochs": 80, "lr": 1e-3}}
     model = CounterModel()
     optimizer = torch.optim.Adam(model.parameters(), lr=opts["train"]["lr"])
     cd = CounterData("/data/")

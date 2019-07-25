@@ -28,6 +28,21 @@ def train(model, iterator, optimizer, loss_fun):
     return model, epoch_loss / len(iterator)
 
 
+def eval(model, iterator):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    epoch_loss = 0
+    model.eval()
+
+    for _, yminus, yplus in iterator:
+        optimizer.zero_grad()
+
+        _, _, y_hat = model(yminus.to(device))
+        loss = loss_fun(y_hat.squeeze(1), yplus.to(device))
+        epoch_loss += loss.item()
+
+    return epoch_loss / len(iterator)
+
+
 if __name__ == '__main__':
     opts = {"train": {"n_epochs": 30, "lr": 1e-3}}
     model = SequenceModel()

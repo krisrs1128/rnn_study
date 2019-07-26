@@ -5,7 +5,9 @@ Training Sequence Models
 from loaders import CounterData
 from models.counter import CounterModel
 from torch.utils.data import DataLoader
+import pandas as pd
 import time
+import json
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -29,35 +31,44 @@ def train(model, iterator, optimizer, loss_fun):
     return model, epoch_loss / len(iterator)
 
 
-def meval(model, iterator, loss_fun):
+def meval(model, loaders, loss_fun):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    errors = []
     epoch_loss = 0
     model.eval()
 
-    for _, x, count in iterator:
-        optimizer.zero_grad()
+    for phase in ["train", "validation"]:
+        for _, x, count in loaders[phase]:
+            _, _, y_hat = model(x.to(device))
+            loss = loss_fun(y_hat.squeeze(1), count.to(device))
+            errors.append({
+                "y": count.detach().numpy(),
+                "y_hat": y_hat.squeeze(1).detach().numpy(),
+                "phase": phase
+            })
 
-        _, _, y_hat = model(x.to(device))
-        loss = loss_fun(y_hat.squeeze(1), count.to(device))
         epoch_loss += loss.item()
 
-    return epoch_loss / len(iterator)
+    return epoch_loss / len(iterator), pd.concat([pd.DataFrame(s) for s in errors])
 
 
 if __name__ == '__main__':
-    opts = {"train": {"n_epochs": 80, "lr": 1e-3}}
+    opts = json.load(open("opts.json", "r"))
     model = CounterModel()
-    optimizer = torch.optim.Adam(model.parameters(), lr=opts["train"]["lr"])
-    cd = CounterData("/data/train/")
-    vd = CounterData("/data/validation/")
+    optimizer = torch.optim.SGD(model.parameters(), lr=opts["train"]["lr"])
+    loaders = {
+        "train": DataLoader(CounterData(opts["data"]["train"]), batch_size=32),
+        "validation": DataLoader(CounterData(opts["data"]["validation"]), batch_size=32)
+    }
 
     for epoch in range(opts["train"]["n_epochs"]):
-        model, train_loss = train(model, DataLoader(cd, batch_size=20), optimizer, nn.CrossEntropyLoss())
-        print("\tTrain Loss: {}".format(train_loss))
+        model, train_loss = train(model, loaders["train"], optimizer, nn.MSELoss())
 
         with torch.no_grad():
-            validation_loss = meval(model, DataLoader(vd, batch_size=20), nn.CrossEntropyLoss()) 
+            valid_loss, errors = meval(model, loaders, nn.MSELoss())
+            errors["epoch"] = epoch
+            errors.to_csv("progress.csv", index=False, mode="a", header=False)
 
-        print("Validation Loss: {}".format(validation_loss))
+        print("Epoch: {}\tTrain: {}\tValidation: {}".format(epoch, train_loss, valid_loss))
 
     torch.save(model, "sinusoid{}.pt".format(int(time.time())))

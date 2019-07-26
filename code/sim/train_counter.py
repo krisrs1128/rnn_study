@@ -29,16 +29,16 @@ def train(model, iterator, optimizer, loss_fun):
     return model, epoch_loss / len(iterator)
 
 
-def meval(model, iterator):
+def meval(model, iterator, loss_fun):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     epoch_loss = 0
     model.eval()
 
-    for _, yminus, yplus in iterator:
+    for _, x, count in iterator:
         optimizer.zero_grad()
 
-        _, _, y_hat = model(yminus.to(device))
-        loss = loss_fun(y_hat.squeeze(1), yplus.to(device))
+        _, _, y_hat = model(x.to(device))
+        loss = loss_fun(y_hat.squeeze(1), count.to(device))
         epoch_loss += loss.item()
 
     return epoch_loss / len(iterator)
@@ -48,15 +48,15 @@ if __name__ == '__main__':
     opts = {"train": {"n_epochs": 80, "lr": 1e-3}}
     model = CounterModel()
     optimizer = torch.optim.Adam(model.parameters(), lr=opts["train"]["lr"])
-    cd = CounterData("/Users/krissankaran/Desktop/rnn_study/data/sinusoid")
-    vd = CounterData("/Users/krissankaran/Desktop/rnn_study/data/validation/")
+    cd = CounterData("/data/train/")
+    vd = CounterData("/data/validation/")
 
     for epoch in range(opts["train"]["n_epochs"]):
         model, train_loss = train(model, DataLoader(cd, batch_size=20), optimizer, nn.CrossEntropyLoss())
         print("\tTrain Loss: {}".format(train_loss))
 
-        with torch.no_grad:
-            validation_loss.append(meval(model, DataLoader(vd, batch_size=20), loss_fun))
+        with torch.no_grad():
+            validation_loss = meval(model, DataLoader(vd, batch_size=20), nn.CrossEntropyLoss()) 
 
         print("Validation Loss: {}".format(validation_loss))
 

@@ -43,6 +43,7 @@ def meval(model, loaders, loss_fun):
         for _, x, count in loaders[phase]:
             _, _, y_hat = model(x.to(device))
             errors.append({
+                "batch": i,
                 "index": np.arange(len(count)),
                 "y": count.detach().numpy(),
                 "y_hat": y_hat.squeeze(1).detach().cpu().numpy(),
@@ -51,8 +52,7 @@ def meval(model, loaders, loss_fun):
             i += 1
 
             if phase == "validation":
-                loss = loss_fun(y_hat.squeeze(1), count.to(device))
-                epoch_loss += loss.item()
+                epoch_loss += loss_fun(y_hat.squeeze(1), count.to(device)).item()
 
     return epoch_loss / len(loaders["validation"]), pd.concat([pd.DataFrame(s) for s in errors])
 

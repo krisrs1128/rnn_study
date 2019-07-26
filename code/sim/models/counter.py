@@ -23,7 +23,7 @@ class CounterModel(nn.Module):
     >>> h, h_n, y_hat = CounterModel()(y[:, :, :])
     >>> plt.scatter(y[:, 1:, :].detach().numpy(), y_hat.detach().numpy())
     """
-    def __init__(self, unit_type="GRU"):
+    def __init__(self):
         super(CounterModel, self).__init__()
         self.n_layers = 5
         self.input_size = 1

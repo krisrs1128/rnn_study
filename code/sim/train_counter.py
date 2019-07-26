@@ -5,9 +5,10 @@ Training Sequence Models
 from loaders import CounterData
 from models.counter import CounterModel
 from torch.utils.data import DataLoader
+import json
+import numpy as np
 import pandas as pd
 import time
-import json
 import torch
 import torch.nn as nn
 

@@ -63,7 +63,11 @@ class CounterData(Dataset):
         self.times = torch.from_numpy(self.times).unsqueeze(2)
         self.values = pd.read_csv(values_path).values.astype("float32")
         self.indics = np.bitwise_and(self.values <= 1.0, self.values >= 0.0)
-        self.counts = torch.from_numpy(np.sum(np.diff(self.indics * 1.) == -1, axis=1)).float()
+        self.counts = torch.from_numpy(np.sum(np.diff(self.indics * 1.) == 1, axis=1)).float()
+
+        if self.values[0] <= 1 and self.values[0] >= 0:
+            self.counts += 1
+
         self.values = torch.from_numpy(self.values).unsqueeze(2)
 
 

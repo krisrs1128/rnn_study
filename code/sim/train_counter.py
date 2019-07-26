@@ -42,7 +42,7 @@ def meval(model, loaders, loss_fun):
         for _, x, count in loaders[phase]:
             _, _, y_hat = model(x.to(device))
             errors.append({
-                "index": np.arange(i * cdl.batch_size, (i + 1) * cdl.batch_size),
+                "index": np.arange(i * loaders[phase].batch_size, (i + 1) * loaders[phase].batch_size),
                 "y": count.detach().numpy(),
                 "y_hat": y_hat.squeeze(1).detach().cpu().numpy(),
                 "phase": phase

@@ -65,8 +65,9 @@ class CounterData(Dataset):
         self.indics = np.bitwise_and(self.values <= 1.0, self.values >= 0.0)
         self.counts = torch.from_numpy(np.sum(np.diff(self.indics * 1.) == 1, axis=1)).float()
 
-        if self.values[0] <= 1 and self.values[0] >= 0:
-            self.counts += 1
+        for i in range(len(self.values)):
+            if self.values[i, 0] <= 1 and self.values[i, 0] >= 0:
+                self.counts[i] += 1
 
         self.values = torch.from_numpy(self.values).unsqueeze(2)
 

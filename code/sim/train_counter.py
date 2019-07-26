@@ -56,7 +56,7 @@ def meval(model, loaders, loss_fun):
 
 
 if __name__ == '__main__':
-    opts = json.load(open("opts.json", "r"))
+    opts = json.load(open("/home/code/sim/opts.json", "r"))
     model = CounterModel()
     optimizer = torch.optim.SGD(model.parameters(), lr=opts["train"]["lr"])
     loaders = {

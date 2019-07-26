@@ -22,8 +22,8 @@ for (i in seq_len(n)) {
 
 z <- matrix(0, nrow = nrow(t1), ncol = ncol(t1))
 for (i in seq_len(nrow(t1))) {
-    t1[i, ] <- t1[i, ] * runif(1, .1, 5) * pi
-    z[i, ] <- sample(c(1, -1), 1) * runif(1, 1, 5) * sin(t1[i, ]) + runif(1, -4, 4)
+    t1[i, ] <- t1[i, ] * runif(1, .1, 6) * pi
+    z[i, ] <- sample(c(1, -1), 1) * runif(1, 1, 5) * sin(t1[i, ]) + runif(1, -3, 3)
 }
 
 write.csv(t1, "../../data/sinusoid/times.csv", row.names = FALSE)

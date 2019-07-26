@@ -10,7 +10,6 @@ import time
 import json
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 def train(model, iterator, optimizer, loss_fun):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -5,7 +5,7 @@ library("ggplot2")
 library("dplyr")
 library("splines")
 
-n <- 10000
+n <- 12500
 l <- 200
 
 t0 <- seq(0, 1, length.out = l)
@@ -22,9 +22,12 @@ for (i in seq_len(n)) {
 
 z <- matrix(0, nrow = nrow(t1), ncol = ncol(t1))
 for (i in seq_len(nrow(t1))) {
-    t1[i, ] <- t1[i, ] * runif(1, .1, 5) * pi
-    z[i, ] <- sample(c(1, -1), 1) * runif(1, 1, 5) * sin(t1[i, ]) + runif(1, -4, 4)
+    t1[i, ] <- t1[i, ] * runif(1, .1, 6) * pi
+    z[i, ] <- sample(c(1, -1), 1) * runif(1, 1, 5) * sin(t1[i, ]) + runif(1, -3, 3)
 }
 
-write.csv(t1, "../../data/sinusoid/times.csv", row.names = FALSE)
-write.csv(z, "../../data/sinusoid/values.csv", row.names = FALSE)
+train_ix <- sample(1:n, .8 * n)
+write.csv(t1[train_ix, ], "../../data/sinusoid/train/times.csv", row.names = FALSE)
+write.csv(z[train_ix, ], "../../data/sinusoid/train/values.csv", row.names = FALSE)
+write.csv(t1[-train_ix, ], "../../data/sinusoid/validation/times.csv", row.names = FALSE)
+write.csv(z[-train_ix, ], "../../data/sinusoid/validation/values.csv", row.names = FALSE)

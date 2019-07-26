@@ -25,9 +25,9 @@ class CounterModel(nn.Module):
     """
     def __init__(self, unit_type="GRU"):
         super(CounterModel, self).__init__()
-        self.n_layers = 4
+        self.n_layers = 5
         self.input_size = 1
-        self.output_size = 8
+        self.output_size = 1
         self.hidden_size = 10
         params = {
             "input_size": self.input_size,

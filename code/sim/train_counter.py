@@ -37,13 +37,16 @@ def meval(model, loaders, loss_fun):
     model.eval()
 
     for phase in ["train", "validation"]:
+        i = 0
         for _, x, count in loaders[phase]:
             _, _, y_hat = model(x.to(device))
             errors.append({
+                "index": np.arange(i * cdl.batch_size, (i + 1) * cdl.batch_size),
                 "y": count.detach().numpy(),
-                "y_hat": y_hat.squeeze(1).detach().numpy(),
+                "y_hat": y_hat.squeeze(1).detach().cpu().numpy(),
                 "phase": phase
             })
+            i += 1
 
             if phase == "validation":
                 loss = loss_fun(y_hat.squeeze(1), count.to(device))

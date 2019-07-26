@@ -28,7 +28,7 @@ class CounterModel(nn.Module):
         self.n_layers = 5
         self.input_size = 1
         self.output_size = 1
-        self.hidden_size = 10
+        self.hidden_size = 20
         params = {
             "input_size": self.input_size,
             "hidden_size": self.hidden_size,
